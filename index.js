@@ -14,7 +14,7 @@ mongoose.connect('mongodb://localhost:27017/yelp-camp')
     .catch(err => {
         console.log(" OHH NO CONECTION PROBLEM")
         console.log(err)
-    })
+    });
 
 
 
