@@ -1,4 +1,5 @@
 const express = require('express');
+const ExpressError = require('./utils/ExpressError');
 const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
@@ -62,19 +63,21 @@ app.delete('/campgrounds/:id', async (req, res) => {
     res.redirect('/campgrounds');
 });
 
-app.post('/campgrounds', async (req, res, next) => {
+app.post('/campgrounds', catchAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
+}));
+
+app.all(/(.*)/, (req, res, next) => {
+    next(new ExpressError('Page not found', 404))
 });
 
 app.use((err, req, res, next) => {
-    if (res.headersSent) {
-        return next(err);
-    }
-    res.status(500);
-    res.send('Oh no, something went wrong')
+    const { statusCode = 500, message = 'Oh no, something went wrong' } = err;
+    res.status(statusCode).send(message);
 });
+
 
 app.listen(3000, () => {
     console.log("listening in port 3000")
